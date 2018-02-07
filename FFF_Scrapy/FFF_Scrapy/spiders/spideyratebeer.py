@@ -16,6 +16,7 @@ class SpideyratebeerSpider(scrapy.Spider):
 
     def parse(self, response):
             for ratebeer in response.xpath('div.ratebeer'):
+#                Modificaiton pour git
                 yield {
                     test = response.xpath('//*[contains(concat(" ",@class," ")," reviews-container ")]//div//div//div//div//@title').extract()
                     for i in range(len(test)):
