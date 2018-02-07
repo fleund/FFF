@@ -4,23 +4,24 @@ import scrapy
 
 class SpideyratebeerSpider(scrapy.Spider):
     name = 'spideyratebeer'
-    allowed_domains = ['https://www.ratebeer.com/beer-ratings/']
-    start_urls = ['http://https://www.ratebeer.com/beer-ratings//']
+    allowed_domains = ['https://www.ratebeer.com/']
+    start_urls = ['https://www.ratebeer.com/beer/kronenbourg-1664/4459/']
 
     def start_requests(self):
             urls= [
-                'https://www.ratebeer.com/beer/silly-rouge-red/375576/252123/'       
+                'https://www.ratebeer.com/beer/kronenbourg-1664/4459/'       
             ]
             for url in urls :
                     yield scrapy.Request(url=url, callback=self.parse)
 
     def parse(self, response):
-        page = [1]
-        filename = 'ratebeer-%s.html' % page
-        with open(filename, 'wb') as f:
-            f.write(response.body)
-        self.log('Saved file %s' % filename)
-        
-        next_page = response.css('li.next a::attr(href)').extract_first()
-        if next_page is not None:
-            yield response.follow(next_page, callback=self.parse)
+            for ratebeer in response.xpath('div.ratebeer'):
+                yield {
+                    test = response.xpath('//*[contains(concat(" ",@class," ")," reviews-container ")]//div//div//div//div//@title').extract()
+                    for i in range(len(test)):
+                        reAromes[i] = re.search(r'(?<=Aroma )\d+/\d+', test[i])
+#                    if(reAromes[i]) is None : 
+#                        reAromes[i]="NaN"
+                    
+                }
+                    
