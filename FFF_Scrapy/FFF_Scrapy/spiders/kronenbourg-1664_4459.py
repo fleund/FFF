@@ -3,12 +3,11 @@ import scrapy
 import re
 import logging
 
-class SpideyratebeerSpider(scrapy.Spider):
-    name = 'spideyratebeer'
+class KronenbourgSpider(scrapy.Spider):
+    name = 'kronenbourg'
     allowed_domains = ['www.ratebeer.com', 'ratebeer.com']
     start_urls = [
                   'https://www.ratebeer.com/beer/kronenbourg-1664/4459/1/1/',
-                  'https://www.ratebeer.com/beer/heineken/37/1/'
                   ]
     page_suiv=1
 
@@ -24,10 +23,13 @@ class SpideyratebeerSpider(scrapy.Spider):
 
                 yield {
                             'beer_name' : response.xpath('//div[contains(concat(" ", @class, " "), " user-header ")]/h1/a/span/text()').extract_first(),
-                            'user' : response.xpath('//*[contains(concat(" ", @class, " "), " reviews-container ")]//div//div//small//a/text()').re('(\w+)(?=\\xa0)'),
+                            'user' : response.xpath('//*[contains(concat(" ", @class, " "), " reviews-container ")]//div//div//small//a/@href').re('(?<=/user/)\d+'),
+                            'localisation' : response.xpath('//*[contains(concat(" ", @class, " "), " reviews-container ")]//div//div//small').re('(?<=\ - ).+(?= -)'),
+                            'time_review' : response.xpath('//*[contains(concat(" ", @class, " "), " reviews-container ")]//div//div//small').re('(?<= - )\w+ \d+, \d+(?=</small>)'),
                             'nr_reviews' : response.xpath('//*[contains(concat(" ", @class, " "), " reviews-container ")]//div//div//small//a/text()').re('(?<=\\xa0\()(\d+)'),
-                            'comment' :response.xpath('//*[contains(concat(" ", @class, " "), " reviews-container ")]/div/div/div/text()').extract(),
                             'score' : response.xpath('//*[contains(concat(" ", @class, " "), " reviews-container ")]//div//div//div/div/@title').extract_first().strip('<br />'),
+                            'comment' :response.xpath('//*[contains(concat(" ", @class, " "), " reviews-container ")]/div/div/div/text()').extract(),
+                            
                     }
                                 
                 for notation in response.xpath('//*[contains(concat(" ", @class, " "), " reviews-container ")]//div//div//div//div//@title') :
@@ -51,12 +53,9 @@ class SpideyratebeerSpider(scrapy.Spider):
 ##                            'Taste' : response.xpath('//*[contains(concat(" ", @class, " "), " reviews-container ")]//div//div//div//div//@title').re_first(r'(?<=Taste )\d+/\d+'),
 ##                            'Palate' : response.xpath('//*[contains(concat(" ", @class, " "), " reviews-container ")]//div//div//div//div//@title').re_first(r'(?<=Palate )\d+/\d+'),
 ##                            'Overall' : response.xpath('//*[contains(concat(" ", @class, " "), " reviews-container ")]//div//div//div//div//@title').re_first(r'(?<=Overall )\d+/\d+'),
-#                        }
-##                          
+#                        }                    
                            
                 
-
-
                 page_act = re.search(r'(?<=\d/)\d+(?=/>$)', str(response)).group()
                 page_suiv = str(int(page_act) +1)
                 next_page = response.urljoin(str(page_suiv)+'/')
@@ -66,3 +65,4 @@ class SpideyratebeerSpider(scrapy.Spider):
                 
                 if int(page_suiv) <= int(response.xpath('//*[contains(concat(" ", @class, " "), " ballno ")]/text()').extract()[-1]):
                     yield response.follow(next_page, callback=self.parse)
+                
