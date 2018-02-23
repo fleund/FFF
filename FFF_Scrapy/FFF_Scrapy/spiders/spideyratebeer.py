@@ -8,7 +8,10 @@ class SpideyratebeerSpider(scrapy.Spider):
     allowed_domains = ['www.ratebeer.com', 'ratebeer.com']
     start_urls = [
                   'https://www.ratebeer.com/beer/kronenbourg-1664/4459/1/1/',
-                  'https://www.ratebeer.com/beer/heineken/37/1/'
+                  'https://www.ratebeer.com/beer/heineken/37/1/1/',
+                  'https://www.ratebeer.com/beer/leffe-blonde/2514/1/1/',
+                  'https://www.ratebeer.com/beer/chouffe-houblon-dobbelen-ipa-tripel/56757/1/1/',
+                  'https://www.ratebeer.com/beer/davelghem-blonde/117003/1/1/'
                   ]
     page_suiv=1
 
@@ -21,7 +24,10 @@ class SpideyratebeerSpider(scrapy.Spider):
 #                    yield scrapy.Request(url=url, callback=self.parse)
     
     def parse(self, response):
-
+#                list = [
+#                        'https://www.ratebeer.com/beer/kronenbourg-1664/4459/1/1/',
+#                        'https://www.ratebeer.com/beer/heineken/37/1/'
+#                  ]
                 yield {
                             'beer_name' : response.xpath('//div[contains(concat(" ", @class, " "), " user-header ")]/h1/a/span/text()').extract_first(),
                             'user' : response.xpath('//*[contains(concat(" ", @class, " "), " reviews-container ")]//div//div//small//a/text()').re('(\w+)(?=\\xa0)'),
@@ -66,3 +72,6 @@ class SpideyratebeerSpider(scrapy.Spider):
                 
                 if int(page_suiv) <= int(response.xpath('//*[contains(concat(" ", @class, " "), " ballno ")]/text()').extract()[-1]):
                     yield response.follow(next_page, callback=self.parse)
+                
+#                for link in list:
+#                    yield response.follow(link, callback = self.parse)

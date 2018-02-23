@@ -2,6 +2,7 @@
 import scrapy
 import re
 import logging
+from scrapy.linkextractors import LinkExtractor
 
 class KronenbourgSpider(scrapy.Spider):
     name = 'kronenbourg'
@@ -22,7 +23,9 @@ class KronenbourgSpider(scrapy.Spider):
                     'https://www.ratebeer.com/beer/fischer-tradition/9760/1/1/',
                   ]
     page_suiv=1
-
+    
+    rules = (
+            Rule(LinkExtractor(allow=)))
                   
 #    def start_requests(self):
 #            urls= [
@@ -32,18 +35,32 @@ class KronenbourgSpider(scrapy.Spider):
 #                    yield scrapy.Request(url=url, callback=self.parse)
     
     def parse(self, response):
-            for i in range(10):
+        for truc in response.css('.reviews-container'):
                 yield {
-                            'beer_name' : response.xpath('//div[contains(concat(" ", @class, " "), " user-header ")]/h1/a/span/text()').extract_first(),
-                            'user' : response.xpath('//*[contains(concat(" ", @class, " "), " reviews-container ")]//div//div//small//a/@href').re_first('(?<=/user/)\d+'),
-                            'localisation' : response.xpath('//*[contains(concat(" ", @class, " "), " reviews-container ")]//div//div//small').re_first('(?<=\ - ).+(?= -)'),
-                            'time_review' : response.xpath('//*[contains(concat(" ", @class, " "), " reviews-container ")]//div//div//small').re_first('(?<= - )\w+ \d+, \d+(?=</small>)'),
-                            'nr_reviews' : response.xpath('//*[contains(concat(" ", @class, " "), " reviews-container ")]//div//div//small//a/text()').re_first('(?<=\\xa0\()(\d+)'),
-                            'score' : response.xpath('//*[contains(concat(" ", @class, " "), " reviews-container ")]//div//div//div/div/@title').extract_first(),
+                            'beer_name' : truc.xpath('//div[contains(concat(" ", @class, " "), " user-header ")]/h1/a/span/text()').extract_first(),
+                            'user' : truc.xpath('//*[contains(concat(" ", @class, " "), " reviews-container ")]//div//div//small//a/@href').re_first('(?<=/user/)\d+'),
+                            'localisation' : truc.xpath('//*[contains(concat(" ", @class, " "), " reviews-container ")]//div//div//small').re_first('(?<=\ - ).+(?= -)'),
+                            'time_review' : truc.xpath('//*[contains(concat(" ", @class, " "), " reviews-container ")]//div//div//small').re_first('(?<= - )\w+ \d+, \d+(?=</small>)'),
+                            'nr_reviews' : truc.xpath('//*[contains(concat(" ", @class, " "), " reviews-container ")]//div//div//small//a/text()').re_first('(?<=\\xa0\()(\d+)'),
+                            'score' :   truc.xpath('//*[contains(concat(" ", @class, " "), " reviews-container ")]//div//div//div/div/@title').extract_first(),
 #                            'comment' :response.xpath('//*[contains(concat(" ", @class, " "), " reviews-container ")]/div/div/div/text()').extract(),
                             
                     }
-                                
+                
+#                yield {
+#                            'beer_name' : response.xpath('//div[contains(concat(" ", @class, " "), " user-header ")]/h1/a/span/text()').extract_first(),
+#                            'user' : response.xpath('//*[contains(concat(" ", @class, " "), " reviews-container ")]//div//div//small//a/@href').re_first('(?<=/user/)\d+'),
+#                            'localisation' : response.xpath('//*[contains(concat(" ", @class, " "), " reviews-container ")]//div//div//small').re_first('(?<=\ - ).+(?= -)'),
+#                            'time_review' : response.xpath('//*[contains(concat(" ", @class, " "), " reviews-container ")]//div//div//small').re_first('(?<= - )\w+ \d+, \d+(?=</small>)'),
+#                            'nr_reviews' : response.xpath('//*[contains(concat(" ", @class, " "), " reviews-container ")]//div//div//small//a/text()').re_first('(?<=\\xa0\()(\d+)'),
+#                            'score' : response.xpath('//*[contains(concat(" ", @class, " "), " reviews-container ")]//div//div//div/div/@title').extract_first(),
+##                            'comment' :response.xpath('//*[contains(concat(" ", @class, " "), " reviews-container ")]/div/div/div/text()').extract(),
+#                            
+#                    }
+                
+
+
+                
 #                for notation in response.xpath('//*[contains(concat(" ", @class, " "), " reviews-container ")]//div//div//div//div//@title') :
 #                            yield {
 #                                        'note' :notation.re_first(r'(\d out of 5\.0|\d\.\d out of 5\.0)'),
